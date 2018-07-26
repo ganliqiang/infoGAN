@@ -33,9 +33,13 @@ class InfoGAN():
 
 		# data
 		self.z_dim = self.data.z_dim
+		print 'z shape{0}'.format(self.z_dim)
 		self.c_dim = self.data.y_dim # condition
+		print 'c_dim shape{0}'.format(self.c_dim)
 		self.size = self.data.size
+		print 'size shape{0}'.format(self.size)
 		self.channel = self.data.channel
+		print 'channel shape{0}'.format(self.channel)
 
 		self.X = tf.placeholder(tf.float32, shape=[None, self.size, self.size, self.channel])
 		self.z = tf.placeholder(tf.float32, shape=[None, self.z_dim])
@@ -62,14 +66,14 @@ class InfoGAN():
 		gpu_options = tf.GPUOptions(allow_growth=True)
 		self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
-	def train(self, sample_dir, ckpt_dir='ckpt', training_epoches = 1000000, batch_size = 64):
+	def train(self, sample_dir, ckpt_dir='ckpt', training_epoches = 400000, batch_size = 64):
 		fig_count = 0
 		self.sess.run(tf.global_variables_initializer())
-		
 		for epoch in range(training_epoches):
 			X_b, _= self.data(batch_size)
 			z_b = sample_z(batch_size, self.z_dim)
 			c_b = sample_c(batch_size, self.c_dim)
+			
 			# update D
 			self.sess.run(
 				self.D_solver,
@@ -81,6 +85,7 @@ class InfoGAN():
 					self.G_solver,
 					feed_dict={self.z: z_b, self.c: c_b}
 				)
+			
 			# update Q
 			for _ in range(2):	
 				self.sess.run(
@@ -98,10 +103,12 @@ class InfoGAN():
 				print('Iter: {}; D loss: {:.4}; G_loss: {:.4}; Q_loss: {:.4}'.format(epoch, D_loss_curr, G_loss_curr, Q_loss_curr))
 
 				if epoch % 1000 == 0:
+					self.saver.save(self.sess, '/home/user/inforGan/GAN/checkpoints/checkpoints', global_step=epoch)
 					z_s = sample_z(16, self.z_dim)
 					c_s = sample_c(16, self.c_dim, fig_count%10)
+					print c_s
 					samples = self.sess.run(self.G_sample, feed_dict={self.c: c_s, self.z: z_s})
-
+					print 'sample{0}'.format(samples.shape)
 					fig = self.data.data2fig(samples)
 					plt.savefig('{}/{}_{}.png'.format(sample_dir, str(fig_count).zfill(3), str(fig_count%10)), bbox_inches='tight')
 					fig_count += 1
@@ -116,7 +123,7 @@ if __name__ == '__main__':
 	os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
 	# save generated images
-	sample_dir = 'Samples/mnist_infogan_conv'
+	sample_dir = 'Samples/sample'
 	if not os.path.exists(sample_dir):
 		os.makedirs(sample_dir)
 

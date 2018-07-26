@@ -225,13 +225,18 @@ class G_conv_mnist(object):
 		with tf.variable_scope(self.name) as scope:
 			#g = tcl.fully_connected(z, 1024, activation_fn = tf.nn.relu, normalizer_fn=tcl.batch_norm,
 			#						weights_initializer=tf.random_normal_initializer(0, 0.02))
+            		print 'zshape{0}'.format(z.shape)
 			g = tcl.fully_connected(z, 7*7*128, activation_fn = tf.nn.relu, normalizer_fn=tcl.batch_norm,
 									weights_initializer=tf.random_normal_initializer(0, 0.02))
+            		print 'g fullshpe{0}'.format(g.shape)            
 			g = tf.reshape(g, (-1, 7, 7, 128))  # 7x7
+            		print 'g reshape shpe{0}'.format(g.shape)
 			g = tcl.conv2d_transpose(g, 64, 4, stride=2, # 14x14x64
-									activation_fn=tf.nn.relu, normalizer_fn=tcl.batch_norm, padding='SAME', weights_initializer=tf.random_normal_initializer(0, 0.02))
-			g = tcl.conv2d_transpose(g, 1, 4, stride=2, # 28x28x1
-										activation_fn=tf.nn.sigmoid, padding='SAME', weights_initializer=tf.random_normal_initializer(0, 0.02))
+									activation_fn=tf.nn.relu, normalizer_fn=tcl.batch_norm, padding='SAME', weights_initializer=tf.random_normal_initializer(0, 0.02)) 
+            		print 'g conv2d shpe{0}'.format(g.shape)
+			g = tcl.conv2d_transpose(g, 1, 4, stride=2, # 28x28x1			
+							activation_fn=tf.nn.sigmoid, padding='SAME', weights_initializer=tf.random_normal_initializer(0, 0.02))
+            		print 'g conn sigmoid shpe{0}'.format(g.shape)
 			return g
 	@property
 	def vars(self):

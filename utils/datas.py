@@ -132,8 +132,8 @@ class mnist():
 	def data2fig(self, samples):
 		if self.is_tanh:
 			samples = (samples + 1)/2
-		fig = plt.figure(figsize=(4, 4))
-		gs = gridspec.GridSpec(4, 4)
+		fig = plt.figure(figsize=(10, 10))
+		gs = gridspec.GridSpec(10, 10)
 		gs.update(wspace=0.05, hspace=0.05)
 
 		for i, sample in enumerate(samples):
